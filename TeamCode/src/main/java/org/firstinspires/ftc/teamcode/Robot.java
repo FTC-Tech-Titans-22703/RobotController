@@ -29,6 +29,7 @@ public class Robot {
     public MecanumDrive drivetrain;
     public Intake intake;
 
+    //AprilTag enum
     public enum AprilTag {
         LEFT(1),
         MIDDLE(2),
@@ -49,6 +50,7 @@ public class Robot {
     public Runtime runtime;
     public TelemetryLogger console;
 
+    //TeleOp Robot Constructor
     public Robot(LinearOpMode opMode) {
         this.opMode = opMode;
         this.telemetry = opMode.telemetry;
@@ -98,6 +100,7 @@ public class Robot {
             camera = OpenCvCameraFactory.getInstance().createWebcam(webcam, cameraMonitorViewId);
             aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
 
+            //Camera initializing and streaming/error handling
             camera.setPipeline(aprilTagDetectionPipeline);
             camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                 @Override
@@ -122,6 +125,7 @@ public class Robot {
             while (!opMode.isStarted() && !opMode.isStopRequested()) {
                 ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
+                //Assign AprilTag is tag is detected
                 if(currentDetections.size() != 0) {
                     boolean tagFound = false;
                     for(AprilTagDetection tag : currentDetections) {
@@ -166,6 +170,7 @@ public class Robot {
             }
         }
 
+        //Calculate distance to tag
         private @SuppressLint("DefaultLocale")
         void tagToTelemetry(AprilTagDetection detection) {
             telemetry.addLine("\nDetected Tag=" + AprilTag.getTag(detection.id));
@@ -186,10 +191,12 @@ public class Robot {
 
         private int maxPower = 1;
 
+        //Drivetrain String parameters
         public MecanumDrive(String leftFront, String rightFront, String leftBack, String rightBack) {
             this(hardwareMap.get(DcMotor.class, leftFront), hardwareMap.get(DcMotor.class, rightFront), hardwareMap.get(DcMotor.class, leftBack), hardwareMap.get(DcMotor.class, rightBack));
         }
 
+        //Drivetrain DcMotor parameters
         public MecanumDrive(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack) {
             this.leftFront = leftFront;
             this.rightFront = rightFront;
@@ -197,6 +204,7 @@ public class Robot {
             this.rightBack = rightBack;
         }
 
+        //DriveTrain Motor Direction boolean parameters
         public void setMotorDirection(boolean leftFront, boolean rightFront, boolean leftBack, boolean rightBack) {
             setMotorDirection(leftFront ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
                     rightFront ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
@@ -204,6 +212,7 @@ public class Robot {
                     rightBack ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
         }
 
+        //DriveTrain Motor Direction DcMotor parameters
         public void setMotorDirection(DcMotorSimple.Direction leftFront, DcMotorSimple.Direction rightFront, DcMotorSimple.Direction leftBack, DcMotorSimple.Direction rightBack) {
             this.leftFront.setDirection(leftFront);
             this.rightFront.setDirection(rightFront);
@@ -211,10 +220,12 @@ public class Robot {
             this.rightBack.setDirection(rightBack);
         }
 
+        //Zero Power Brakes boolean parameter
         public void setBrakeMode(boolean brakes) {
             setBrakeMode(brakes ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
         }
 
+        //Zero Power Brakes DcMotor parameter
         public void setBrakeMode(DcMotor.ZeroPowerBehavior brakes) {
             leftFront.setZeroPowerBehavior(brakes);
             rightFront.setZeroPowerBehavior(brakes);
@@ -222,6 +233,7 @@ public class Robot {
             rightBack.setZeroPowerBehavior(brakes);
         }
 
+        //Set power of DriveTrain motors
         public void setPower(double leftFront, double rightFront, double leftBack, double rightBack) {
             this.leftFront.setPower(Range.clip(leftFront, -maxPower, maxPower));
             this.rightFront.setPower(Range.clip(rightFront, -maxPower, maxPower));
@@ -229,14 +241,17 @@ public class Robot {
             this.rightBack.setPower(Range.clip(rightBack, -maxPower, maxPower));
         }
 
+        //Max power setter
         public void setMaxPower(int maxPower) {
             this.maxPower = Range.clip(maxPower, -1, 1);
         }
 
+        //Max power getter
         public int getMaxPower() {
             return maxPower;
         }
 
+        //Movement calculations
         public void move(double fwdBackPower, double strafePower, double turnPower) {
             setPower(fwdBackPower + turnPower + strafePower,
                     fwdBackPower - turnPower - strafePower,
@@ -244,18 +259,22 @@ public class Robot {
                     fwdBackPower - turnPower + strafePower);
         }
 
+        //Move in set direction for seconds
         public void moveForSeconds(double leftFront, double rightFront, double leftBack, double rightBack, double seconds) {
 
         }
 
+        //Move to specified position
         public void moveToPosition() {
 
         }
 
+        //Stop all DriveTrain motors
         public void stop() {
             setPower(0, 0, 0, 0);
         }
 
+        //Rotate encoders to zero position
         void setEncoderMode(DcMotor.RunMode encoderMode) {
             if(encoderMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
 
@@ -265,6 +284,7 @@ public class Robot {
             rightBack.setMode(encoderMode);
         }
 
+        //Reset encoders to zero at current position
         void resetEncoders() {
             leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -279,40 +299,48 @@ public class Robot {
 
         public final double INTAKE_SPEED = 0.2;
 
+        //Intake String parameters
         public Intake(String left, String right) {
             this(hardwareMap.get(DcMotor.class, left), hardwareMap.get(DcMotor.class, right));
         }
 
+        //Intake DcMotor parameters
         public Intake(DcMotor left, DcMotor right) {
             this.left = left;
             this.right = right;
         }
 
+        //Intake Motor Direction boolean parameters
         public void setMotorDirection(boolean left, boolean right) {
             setMotorDirection(left ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE, right ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
         }
 
+        //Intake Motor Direction DcMotor parameters
         public void setMotorDirection(DcMotorSimple.Direction left, DcMotorSimple.Direction right) {
             this.left.setDirection(left);
             this.right.setDirection(right);
         }
 
+        //Intake - In
         public void in() {
             left.setPower(INTAKE_SPEED);
             right.setPower(INTAKE_SPEED);
         }
 
+        //Intake - Out
         public void out() {
             left.setPower(-INTAKE_SPEED);
             right.setPower(-INTAKE_SPEED);
         }
 
+        //Intake - Stop
         public void stop() {
             left.setPower(0);
             right.setPower(0);
         }
     }
 
+    //Runtime
     private static class Runtime {
         private final ElapsedTime runtime;
 
@@ -336,6 +364,7 @@ public class Robot {
         }
     }
 
+    //Telemetry display
     public class TelemetryLogger {
         private final HashMap<String, Object> data;
 

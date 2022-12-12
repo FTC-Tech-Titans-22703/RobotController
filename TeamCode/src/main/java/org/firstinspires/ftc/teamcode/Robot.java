@@ -64,7 +64,6 @@ public class Robot {
         console = new TelemetryLogger();
     }
 
-
     public class Vision {
         private final WebcamName webcam;
         public OpenCvCamera camera;
@@ -341,7 +340,7 @@ public class Robot {
         private final HashMap<String, Object> data;
 
         public TelemetryLogger() {
-            data = new HashMap<String, Object>();
+            data = new HashMap<>();
         }
 
         public void update(String caption, Object value) {

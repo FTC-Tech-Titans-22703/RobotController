@@ -19,6 +19,7 @@
  * SOFTWARE.
  */
 
+//DO NOT EDIT
 package org.firstinspires.ftc.teamcode;
 
 import org.opencv.calib3d.Calib3d;
@@ -36,6 +37,7 @@ import org.openftc.apriltag.AprilTagDetectorJNI;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
+
 
 class AprilTagDetectionPipeline extends OpenCvPipeline
 {

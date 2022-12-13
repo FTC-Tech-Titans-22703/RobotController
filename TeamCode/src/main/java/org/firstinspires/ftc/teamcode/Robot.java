@@ -50,7 +50,7 @@ public class Robot {
     public Runtime runtime;
     public TelemetryLogger console;
 
-    //TeleOp Robot Constructor
+    //Robot Constructor
     public Robot(LinearOpMode opMode) {
         this.opMode = opMode;
         this.telemetry = opMode.telemetry;

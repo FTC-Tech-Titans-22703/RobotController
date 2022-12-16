@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.util;
 
 import android.annotation.SuppressLint;
 
@@ -69,7 +69,7 @@ public class Robot {
     public class Vision {
         private final WebcamName webcam;
         public OpenCvCamera camera;
-        private AprilTagDetectionPipeline aprilTagDetectionPipeline;
+        AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
         static final double FEET_PER_METER = 3.28084;
 

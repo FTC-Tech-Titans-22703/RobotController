@@ -1,0 +1,2 @@
+upload/build: ftc_http -ub TeamCode/src/main/java
+download: ftc_http -d TeamCode/src/main/java

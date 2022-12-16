@@ -19,7 +19,7 @@
  * SOFTWARE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.util;
 
 import android.annotation.SuppressLint;
 
@@ -29,6 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+import org.firstinspires.ftc.teamcode.util.AprilTagDetectionPipeline;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -36,7 +37,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "Detect")
+@Autonomous(name = "AprilTagExample")
 @Disabled
 public class AprilTagExample extends LinearOpMode {
     OpenCvCamera camera;
@@ -107,33 +108,32 @@ public class AprilTagExample extends LinearOpMode {
                 }
 
                 if(tagFound) {
-                    telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
+                    telemetry.addLine("Tag Detected\nLocation data:");
                     tagToTelemetry(tagOfInterest);
                 }
                 else {
-                    telemetry.addLine("Don't see tag of interest :(");
+                    telemetry.addLine("Tag NOT Detected");
 
                     if(tagOfInterest == null) {
                         telemetry.addLine("(The tag has never been seen)");
                     }
                     else {
-                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+                        telemetry.addLine("\nTag previoiusly detected; last seen at:");
                         tagToTelemetry(tagOfInterest);
                     }
                 }
 
             }
             else {
-                telemetry.addLine("Don't see tag of interest :(");
+                telemetry.addLine("Tag NOT Detected");
 
                 if(tagOfInterest == null) {
                     telemetry.addLine("(The tag has never been seen)");
                 }
                 else {
-                    telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+                    telemetry.addLine("\nTag previoiusly detected; last seen at:");
                     tagToTelemetry(tagOfInterest);
                 }
-
             }
 
             telemetry.update();

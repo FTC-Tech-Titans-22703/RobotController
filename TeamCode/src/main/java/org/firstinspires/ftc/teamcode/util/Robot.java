@@ -25,9 +25,8 @@ public class Robot {
     public Telemetry telemetry;
     public HardwareMap hardwareMap;
 
-    public Vision vision;
     public MecanumDrive drivetrain;
-    public Intake intake;
+    public Vision vision;
 
     //AprilTag enum
     public enum AprilTag {
@@ -53,14 +52,13 @@ public class Robot {
     //Robot Constructor
     public Robot(LinearOpMode opMode) {
         this.opMode = opMode;
-        this.telemetry = opMode.telemetry;
         this.hardwareMap = opMode.hardwareMap;
+        this.telemetry = opMode.telemetry;
 
         drivetrain = new MecanumDrive("leftFront", "rightFront", "leftBack", "rightBack");
         drivetrain.setMotorDirection(true, false, true, false);
 
-        intake = new Intake("leftSpinner", "rightSpinner");
-        intake.setMotorDirection(true, false);
+        vision = new Vision("Webcam 1");
 
         runtime = new Runtime();
         console = new TelemetryLogger();
@@ -126,41 +124,37 @@ public class Robot {
                 ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
                 //Assign AprilTag is tag is detected
-                if(currentDetections.size() != 0) {
+                if (currentDetections.size() != 0) {
                     boolean tagFound = false;
-                    for(AprilTagDetection tag : currentDetections) {
-                        if(tag.id == AprilTag.LEFT.id || tag.id == AprilTag.MIDDLE.id || tag.id == AprilTag.RIGHT.id) {
+                    for (AprilTagDetection tag : currentDetections) {
+                        if (tag.id == AprilTag.LEFT.id || tag.id == AprilTag.MIDDLE.id || tag.id == AprilTag.RIGHT.id) {
                             detectedTag = tag;
                             tagFound = true;
                             break;
                         }
                     }
 
-                    if(tagFound) {
-                        telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
+                    if (tagFound) {
+                        telemetry.addLine("Tag Detected:");
                         tagToTelemetry(detectedTag);
-                    }
-                    else {
-                        telemetry.addLine("Tag not found");
+                    } else {
+                        telemetry.addLine("Tag NOT Detected");
 
-                        if(detectedTag == null) {
-                            telemetry.addLine("(The tag has never been seen)");
-                        }
-                        else {
-                            telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+                        if (detectedTag == null) {
+                            telemetry.addLine("(Tag has never been detected)");
+                        } else {
+                            telemetry.addLine("Previous Tag:");
                             tagToTelemetry(detectedTag);
                         }
                     }
 
-                }
-                else {
-                    telemetry.addLine("Don't see tag of interest :(");
+                } else {
+                    telemetry.addLine("Tag NOT Detected");
 
-                    if(detectedTag == null) {
-                        telemetry.addLine("(The tag has never been seen)");
-                    }
-                    else {
-                        telemetry.addLine("\nBut we HAVE seen the tag before; last seen at:");
+                    if (detectedTag == null) {
+                        telemetry.addLine("(Tag has never been detected)");
+                    } else {
+                        telemetry.addLine("Previous Tag:");
                         tagToTelemetry(detectedTag);
                     }
                 }
@@ -168,12 +162,13 @@ public class Robot {
                 telemetry.update();
                 opMode.sleep(20);
             }
+            telemetry.clearAll();
         }
 
         //Calculate distance to tag
         private @SuppressLint("DefaultLocale")
         void tagToTelemetry(AprilTagDetection detection) {
-            telemetry.addLine("\nDetected Tag=" + AprilTag.getTag(detection.id));
+            telemetry.addLine("\nDetected Tag = " + AprilTag.getTag(detection.id) + " (id = " + detection.id + ")");
             telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
             telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
             telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
@@ -290,54 +285,6 @@ public class Robot {
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        }
-    }
-
-    public class Intake {
-        public DcMotor left;
-        public DcMotor right;
-
-        public final double INTAKE_SPEED = 0.2;
-
-        //Intake String parameters
-        public Intake(String left, String right) {
-            this(hardwareMap.get(DcMotor.class, left), hardwareMap.get(DcMotor.class, right));
-        }
-
-        //Intake DcMotor parameters
-        public Intake(DcMotor left, DcMotor right) {
-            this.left = left;
-            this.right = right;
-        }
-
-        //Intake Motor Direction boolean parameters
-        public void setMotorDirection(boolean left, boolean right) {
-            setMotorDirection(left ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
-                    right ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
-        }
-
-        //Intake Motor Direction DcMotor parameters
-        public void setMotorDirection(DcMotorSimple.Direction left, DcMotorSimple.Direction right) {
-            this.left.setDirection(left);
-            this.right.setDirection(right);
-        }
-
-        //Intake - In
-        public void in() {
-            left.setPower(INTAKE_SPEED);
-            right.setPower(INTAKE_SPEED);
-        }
-
-        //Intake - Out
-        public void out() {
-            left.setPower(-INTAKE_SPEED);
-            right.setPower(-INTAKE_SPEED);
-        }
-
-        //Intake - Stop
-        public void stop() {
-            left.setPower(0);
-            right.setPower(0);
         }
     }
 

@@ -312,7 +312,8 @@ public class Robot {
 
         //Intake Motor Direction boolean parameters
         public void setMotorDirection(boolean left, boolean right) {
-            setMotorDirection(left ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE, right ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+            setMotorDirection(left ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
+                    right ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
         }
 
         //Intake Motor Direction DcMotor parameters

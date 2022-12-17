@@ -81,7 +81,7 @@ public class Robot {
         double cy = 221.506;
 
         // UNITS ARE METERS
-        double tagsize = 0.166;
+        double tagsize = 0.06429863382690999;
 
         public AprilTagDetection detectedTag = null;
 
@@ -163,12 +163,15 @@ public class Robot {
                 opMode.sleep(20);
             }
             telemetry.clearAll();
+            camera.stopStreaming();
+
+            opMode.sleep(3000);
         }
 
         //Calculate distance to tag
         private @SuppressLint("DefaultLocale")
         void tagToTelemetry(AprilTagDetection detection) {
-            telemetry.addLine("\nDetected Tag = " + AprilTag.getTag(detection.id) + " (id = " + detection.id + ")");
+            telemetry.addLine("\nDetected Tag = " + AprilTag.getTag(detection.id) + " (id: " + detection.id + ")");
             telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
             telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
             telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));

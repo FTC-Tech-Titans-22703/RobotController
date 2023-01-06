@@ -408,27 +408,27 @@ public class Robot {
              * This REPLACES waitForStart!
              */
 
-            while (!opMode.isStarted() && !opMode.isStopRequested()) {
+            while(!opMode.isStarted() && !opMode.isStopRequested()) {
                 ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
-                if (currentDetections.size() != 0) {
+                if(currentDetections.size() != 0) {
                     boolean tagFound = false;
-                    for (AprilTagDetection tag : currentDetections) {
-                        if (tag.id == AprilTag.LEFT.id || tag.id == AprilTag.MIDDLE.id || tag.id == AprilTag.RIGHT.id) {
+                    for(AprilTagDetection tag : currentDetections) {
+                        if(tag.id == AprilTag.LEFT.id || tag.id == AprilTag.MIDDLE.id || tag.id == AprilTag.RIGHT.id) {
                             detectedTag = tag;
                             tagFound = true;
                             break;
                         }
                     }
 
-                    if (tagFound) {
+                    if(tagFound) {
                         telemetry.addLine("Tag Detected:");
                         tagToTelemetry(detectedTag);
                     }
                     else {
                         telemetry.addLine("Tag NOT Detected");
 
-                        if (detectedTag == null) {
+                        if(detectedTag == null) {
                             telemetry.addLine("(Tag has never been detected)");
                         } else {
                             telemetry.addLine("Previous Tag:");
@@ -440,7 +440,7 @@ public class Robot {
                 else {
                     telemetry.addLine("Tag NOT Detected");
 
-                    if (detectedTag == null) {
+                    if(detectedTag == null) {
                         telemetry.addLine("(Tag has never been detected)");
                     }
                     else {
@@ -484,8 +484,7 @@ public class Robot {
         public void delay(int millis) {
             try {
                 Thread.sleep(millis);
-            } catch (InterruptedException ignored) {
-            }
+            } catch(InterruptedException ignored) {}
         }
 
         public int getTime() {

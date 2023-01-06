@@ -1,0 +1,13 @@
+constructor String, T
+setMotorDirection boolean, DcMotorSimple.Direction
+setBrakeMode boolean, DcMotor.ZeroPowerBehavior
+setPower double
+setMaxPower int
+getMaxPower
+move
+moveForSeconds
+moveToPosition
+stop
+setEncoderMode DcMotor.RunMode
+resetEncoders
+

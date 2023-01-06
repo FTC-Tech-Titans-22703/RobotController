@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -26,10 +27,16 @@ public class Robot {
     public HardwareMap hardwareMap;
 
     public MecanumDrive drivetrain;
+    public Lift lift;
+    public Arm arm;
+    public Gripper gripper;
+
     public Vision vision;
 
-    //AprilTag enum
-    public enum AprilTag {
+    public Runtime runtime;
+    public TelemetryLogger console;
+
+    public static enum AprilTag {
         LEFT(1),
         MIDDLE(2),
         RIGHT(3);
@@ -46,10 +53,11 @@ public class Robot {
         }
     }
 
-    public Runtime runtime;
-    public TelemetryLogger console;
+    public static enum GripperPosition {
+        OPEN,
+        CLOSED;
+    }
 
-    //Robot Constructor
     public Robot(LinearOpMode opMode) {
         this.opMode = opMode;
         this.hardwareMap = opMode.hardwareMap;
@@ -57,6 +65,12 @@ public class Robot {
 
         drivetrain = new MecanumDrive("leftFront", "rightFront", "leftBack", "rightBack");
         drivetrain.setMotorDirection(true, false, true, false);
+
+        lift = new Lift("leftLift", "rightLift");
+
+        arm = new Arm("arm");
+
+        gripper = new Gripper("gripper");
 
         vision = new Vision("Webcam 1");
 
@@ -120,6 +134,7 @@ public class Robot {
              * The INIT-loop:
              * This REPLACES waitForStart!
              */
+
             while (!opMode.isStarted() && !opMode.isStopRequested()) {
                 ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
@@ -168,7 +183,6 @@ public class Robot {
             opMode.sleep(3000);
         }
 
-        //Calculate distance to tag
         private @SuppressLint("DefaultLocale")
         void tagToTelemetry(AprilTagDetection detection) {
             telemetry.addLine("\nDetected Tag = " + AprilTag.getTag(detection.id) + " (id: " + detection.id + ")");
@@ -182,19 +196,17 @@ public class Robot {
     }
 
     public class MecanumDrive {
-        public DcMotor leftFront;
-        public DcMotor rightFront;
-        public DcMotor leftBack;
-        public DcMotor rightBack;
+        private DcMotor leftFront;
+        private DcMotor rightFront;
+        private DcMotor leftBack;
+        private DcMotor rightBack;
 
         private int maxPower = 1;
 
-        //Drivetrain String parameters
         public MecanumDrive(String leftFront, String rightFront, String leftBack, String rightBack) {
             this(hardwareMap.get(DcMotor.class, leftFront), hardwareMap.get(DcMotor.class, rightFront), hardwareMap.get(DcMotor.class, leftBack), hardwareMap.get(DcMotor.class, rightBack));
         }
 
-        //Drivetrain DcMotor parameters
         public MecanumDrive(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack) {
             this.leftFront = leftFront;
             this.rightFront = rightFront;
@@ -202,15 +214,6 @@ public class Robot {
             this.rightBack = rightBack;
         }
 
-        //DriveTrain Motor Direction boolean parameters
-        public void setMotorDirection(boolean leftFront, boolean rightFront, boolean leftBack, boolean rightBack) {
-            setMotorDirection(leftFront ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
-                    rightFront ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
-                    leftBack ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
-                    rightBack ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
-        }
-
-        //DriveTrain Motor Direction DcMotor parameters
         public void setMotorDirection(DcMotorSimple.Direction leftFront, DcMotorSimple.Direction rightFront, DcMotorSimple.Direction leftBack, DcMotorSimple.Direction rightBack) {
             this.leftFront.setDirection(leftFront);
             this.rightFront.setDirection(rightFront);
@@ -218,12 +221,17 @@ public class Robot {
             this.rightBack.setDirection(rightBack);
         }
 
-        //Zero Power Brakes boolean parameter
+        public void setMotorDirection(boolean leftFront, boolean rightFront, boolean leftBack, boolean rightBack) {
+            setMotorDirection(leftFront ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
+                    rightFront ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
+                    leftBack ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
+                    rightBack ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        }
+
         public void setBrakeMode(boolean brakes) {
             setBrakeMode(brakes ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
         }
 
-        //Zero Power Brakes DcMotor parameter
         public void setBrakeMode(DcMotor.ZeroPowerBehavior brakes) {
             leftFront.setZeroPowerBehavior(brakes);
             rightFront.setZeroPowerBehavior(brakes);
@@ -231,7 +239,6 @@ public class Robot {
             rightBack.setZeroPowerBehavior(brakes);
         }
 
-        //Set power of DriveTrain motors
         public void setPower(double leftFront, double rightFront, double leftBack, double rightBack) {
             this.leftFront.setPower(Range.clip(leftFront, -maxPower, maxPower));
             this.rightFront.setPower(Range.clip(rightFront, -maxPower, maxPower));
@@ -239,17 +246,14 @@ public class Robot {
             this.rightBack.setPower(Range.clip(rightBack, -maxPower, maxPower));
         }
 
-        //Max power setter
         public void setMaxPower(int maxPower) {
             this.maxPower = Range.clip(maxPower, -1, 1);
         }
 
-        //Max power getter
         public int getMaxPower() {
             return maxPower;
         }
 
-        //Movement calculations
         public void move(double fwdBackPower, double strafePower, double turnPower) {
             setPower(fwdBackPower + turnPower + strafePower,
                     fwdBackPower - turnPower - strafePower,
@@ -257,22 +261,18 @@ public class Robot {
                     fwdBackPower - turnPower + strafePower);
         }
 
-        //Move in set direction for seconds
         public void moveForSeconds(double leftFront, double rightFront, double leftBack, double rightBack, double seconds) {
 
         }
 
-        //Move to specified position
         public void moveToPosition() {
 
         }
 
-        //Stop all DriveTrain motors
         public void stop() {
             setPower(0, 0, 0, 0);
         }
 
-        //Rotate encoders to zero position
         void setEncoderMode(DcMotor.RunMode encoderMode) {
             if(encoderMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
 
@@ -282,12 +282,63 @@ public class Robot {
             rightBack.setMode(encoderMode);
         }
 
-        //Reset encoders to zero at current position
         void resetEncoders() {
             leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+    }
+
+    public class Lift {
+        private DcMotor leftLift;
+        private DcMotor rightLift;
+
+        public Lift(String leftLift, String rightLift) {
+            this(hardwareMap.get(DcMotor.class, leftLift), hardwareMap.get(DcMotor.class, rightLift));
+        }
+
+        public Lift(DcMotor leftLift, DcMotor rightLift) {
+            this.leftLift = leftLift;
+            this.rightLift = rightLift;
+        }
+    }
+
+    public class Arm {
+        private DcMotor arm;
+
+        public Arm(String arm) {
+            this(hardwareMap.get(DcMotor.class, arm));
+        }
+
+        public Arm(DcMotor arm) {
+            this.arm = arm;
+        }
+    }
+
+    public class Gripper {
+        private Servo gripper;
+        private GripperPosition position;
+
+        public Gripper(String gripper) {
+            this(hardwareMap.get(Servo.class, gripper));
+        }
+
+        public Gripper(Servo gripper) {
+            this.gripper = gripper;
+            position = GripperPosition.OPEN;
+        }
+
+        public void open() {
+            position = GripperPosition.CLOSED;
+        }
+
+        public void close() {
+            position = GripperPosition.OPEN;
+        }
+
+        public GripperPosition getPosition() {
+            return position;
         }
     }
 

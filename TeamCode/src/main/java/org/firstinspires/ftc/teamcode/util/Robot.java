@@ -411,7 +411,6 @@ public class Robot {
             while (!opMode.isStarted() && !opMode.isStopRequested()) {
                 ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
-                //Assign AprilTag is tag is detected
                 if (currentDetections.size() != 0) {
                     boolean tagFound = false;
                     for (AprilTagDetection tag : currentDetections) {

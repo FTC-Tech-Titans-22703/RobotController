@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.util.Robot;
 
-@Autonomous(name = "Detect", group = "Auto")
+@Autonomous(name = "Detect", group = "Example")
 public class Detect extends LinearOpMode {
     private Robot robot;
 

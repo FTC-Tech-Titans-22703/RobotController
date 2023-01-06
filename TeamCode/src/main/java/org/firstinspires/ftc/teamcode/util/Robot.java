@@ -133,7 +133,7 @@ public class Robot {
             this.rightBack.setPower(clip(rightBack, maxPower));
         }
 
-        public void setMaxPower(int maxPower) {
+        public void setMaxPower(double maxPower) {
             this.maxPower = clip(maxPower, 1);
         }
 
@@ -155,12 +155,12 @@ public class Robot {
             runtime.wait(50);
         }
         //11.87329
-        public void moveToPosition(double fwdBackPower, double strafePower, double turnPower, int pos) {
+        public void moveToPosition(double fwdBackPower, double strafePower, double turnPower, double distance) {
             drivetrain.resetEncoders();
-            leftFront.setTargetPosition(pos);
-            rightFront.setTargetPosition(pos);
-            leftBack.setTargetPosition(pos);
-            rightBack.setTargetPosition(pos);
+            leftFront.setTargetPosition(getPositionFromDistance(distance));
+            rightFront.setTargetPosition(getPositionFromDistance(distance));
+            leftBack.setTargetPosition(getPositionFromDistance(distance));
+            rightBack.setTargetPosition(getPositionFromDistance(distance));
             drivetrain.setDriveMode(DcMotor.RunMode.RUN_TO_POSITION);
             drivetrain.move(fwdBackPower, strafePower, turnPower);
 
@@ -191,10 +191,8 @@ public class Robot {
             //setMode(prevMode);
         }
 
-        public void print() {
-            telemetry.addData("pos", leftBack.getCurrentPosition());
-            telemetry.update();
-            opMode.idle();
+        private int getPositionFromDistance(double distance) {
+            return (int) (distance / ((Math.PI * (96 / 25.4)) / 537.6));
         }
     }
 
@@ -359,15 +357,24 @@ public class Robot {
         }
 
         public void open() {
+            gripper.setDirection(Servo.Direction.FORWARD);
             position = GripperPosition.CLOSED;
+            gripper.setPosition(0);
         }
 
         public void close() {
+            gripper.setDirection(Servo.Direction.REVERSE);
             position = GripperPosition.OPEN;
+            gripper.setPosition(0.03);
         }
 
         public GripperPosition getPosition() {
             return position;
+        }
+
+        public void print() {
+            telemetry.addData("pos", gripper.getPosition());
+            telemetry.update();
         }
     }
 

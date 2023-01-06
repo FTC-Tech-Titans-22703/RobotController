@@ -17,16 +17,11 @@ public class Detect extends LinearOpMode {
         robot.vision.initScan();
         robot.vision.waitForStartAndScan();
 
-        robot.drivetrain.resetEncoders();
-        while(true) {
-            robot.drivetrain.print();
-        }
-
-        /*while(opModeIsActive()) {
-            robot.drivetrain.moveToPosition(0.4, 0, 0, 536);
+        while(opModeIsActive()) {
+            robot.drivetrain.moveToPosition(0.5, 0, 0, 24);
             robot.drivetrain.stop();
             break;
-        }*/
+        }
         /*if(robot.vision.getDetectedTag() == Robot.AprilTag.LEFT) {
             robot.drivetrain.moveForSeconds(0, -0.4, 0, 1400);
 

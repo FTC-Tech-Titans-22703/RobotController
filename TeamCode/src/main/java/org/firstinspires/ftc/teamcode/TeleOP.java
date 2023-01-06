@@ -14,11 +14,9 @@ public class TeleOP extends LinearOpMode {
         robot = new Robot(this);
         waitForStart();
 
-        boolean reverseDrive = true;
         double driveFactor = 1;
         while(opModeIsActive()) {
-            robot.drivetrain.setMotorDirection(reverseDrive, !reverseDrive, reverseDrive, !reverseDrive);
-            robot.drivetrain.move(gamepad1.right_stick_y * driveFactor, gamepad1.right_stick_x * driveFactor, gamepad1.left_stick_x * driveFactor);
+            robot.drivetrain.move(gamepad1.right_stick_y * -driveFactor, gamepad1.right_stick_x * driveFactor, gamepad1.left_stick_x * driveFactor);
 
             if(gamepad1.right_trigger > 0.5) {
                 robot.gripper.open();
@@ -28,12 +26,16 @@ public class TeleOP extends LinearOpMode {
             }
 
             if(gamepad1.a) {
-                reverseDrive = !reverseDrive;
+                driveFactor = -driveFactor;
             }
 
             if(gamepad1.b) {
-                driveFactor = driveFactor == 1 ? 0.3 : 1;
+                robot.drivetrain.setMaxPower(robot.drivetrain.getMaxPower() == 1 ? 0.3 : 1);
             }
+
+            telemetry.addData("Reverse", driveFactor == -1);
+            telemetry.addData("Speed", (int) (robot.drivetrain.getMaxPower() * 100) + "%");
+            telemetry.update();
         }
     }
 }

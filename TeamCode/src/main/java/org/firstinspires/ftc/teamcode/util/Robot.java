@@ -36,7 +36,7 @@ public class Robot {
     public Runtime runtime;
     public TelemetryLogger console;
 
-    public static enum AprilTag {
+    public enum AprilTag {
         NOT_FOUND(-1),
         LEFT(1),
         MIDDLE(2),
@@ -48,7 +48,7 @@ public class Robot {
         }
     }
 
-    public static enum GripperPosition {
+    public enum GripperPosition {
         OPEN,
         CLOSED;
     }
@@ -76,12 +76,15 @@ public class Robot {
     }
 
     public class MecanumDrive {
-        private DcMotor leftFront;
-        private DcMotor rightFront;
-        private DcMotor leftBack;
-        private DcMotor rightBack;
+        private final DcMotor leftFront;
+        private final DcMotor rightFront;
+        private final DcMotor leftBack;
+        private final DcMotor rightBack;
 
         private double maxPower = 1;
+
+        private final double WHEEL_RADIUS_INCHES = 1.88976377953;
+        private final double MOTOR_CPR = 537.6;
 
         public MecanumDrive(String leftFront, String rightFront, String leftBack, String rightBack) {
             this(hardwareMap.get(DcMotor.class, leftFront), hardwareMap.get(DcMotor.class, rightFront), hardwareMap.get(DcMotor.class, leftBack), hardwareMap.get(DcMotor.class, rightBack));
@@ -92,6 +95,9 @@ public class Robot {
             this.rightFront = rightFront;
             this.leftBack = leftBack;
             this.rightBack = rightBack;
+
+            resetEncoders();
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         public void setMotorDirection(DcMotorSimple.Direction leftFront, DcMotorSimple.Direction rightFront, DcMotorSimple.Direction leftBack, DcMotorSimple.Direction rightBack) {
@@ -117,13 +123,6 @@ public class Robot {
             rightFront.setZeroPowerBehavior(brakes);
             leftBack.setZeroPowerBehavior(brakes);
             rightBack.setZeroPowerBehavior(brakes);
-        }
-
-        public void setDriveMode(DcMotor.RunMode driveMode) {
-            leftFront.setMode(driveMode);
-            rightFront.setMode(driveMode);
-            leftBack.setMode(driveMode);
-            rightBack.setMode(driveMode);
         }
 
         public void setPower(double leftFront, double rightFront, double leftBack, double rightBack) {
@@ -152,24 +151,40 @@ public class Robot {
             drivetrain.move(fwdBackPower, strafePower, turnPower);
             runtime.wait(time);
             drivetrain.stop();
-            runtime.wait(50);
+            runtime.wait(25);
         }
-        //11.87329
-        public void moveToPosition(double fwdBackPower, double strafePower, double turnPower, double distance) {
+
+        public void moveDistance(double fwdBackPower, double strafePower, double turnPower, double distance) {
+            moveToPosition(fwdBackPower, strafePower, turnPower, (int) (distance / ((2 * Math.PI * WHEEL_RADIUS_INCHES) / MOTOR_CPR)));
+        }
+
+        public void moveRotations(double fwdBackPower, double strafePower, double turnPower, double rotations) {
+            moveToPosition(fwdBackPower, strafePower, turnPower, (int) (rotations * MOTOR_CPR));
+        }
+
+        public void moveToPosition(double fwdBackPower, double strafePower, double turnPower, int position) {
             drivetrain.resetEncoders();
-            leftFront.setTargetPosition(getPositionFromDistance(distance));
-            rightFront.setTargetPosition(getPositionFromDistance(distance));
-            leftBack.setTargetPosition(getPositionFromDistance(distance));
-            rightBack.setTargetPosition(getPositionFromDistance(distance));
-            drivetrain.setDriveMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            leftFront.setTargetPosition(position);
+            rightFront.setTargetPosition(position);
+            leftBack.setTargetPosition(position);
+            rightBack.setTargetPosition(position);
+
+            drivetrain.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
             drivetrain.move(fwdBackPower, strafePower, turnPower);
 
-            while (opMode.opModeIsActive() && (rightFront.isBusy() || leftFront.isBusy() || rightBack.isBusy() || leftBack.isBusy())) {
+            while(opMode.opModeIsActive() && isBusy()) {
                 telemetry.addData("pos", leftFront.getCurrentPosition());
                 telemetry.update();
                 opMode.idle();
             }
+
             drivetrain.stop();
+        }
+
+        public boolean isBusy() {
+            return rightFront.isBusy() || leftFront.isBusy() || rightBack.isBusy() || leftBack.isBusy();
         }
 
         public void stop() {
@@ -177,8 +192,6 @@ public class Robot {
         }
 
         public void setMode(DcMotor.RunMode runMode) {
-            if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
-
             leftFront.setMode(runMode);
             rightFront.setMode(runMode);
             leftBack.setMode(runMode);
@@ -186,21 +199,18 @@ public class Robot {
         }
 
         public void resetEncoders() {
-            DcMotor.RunMode prevMode = leftFront.getMode();
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            //setMode(prevMode);
-        }
-
-        private int getPositionFromDistance(double distance) {
-            return (int) (distance / ((Math.PI * (96 / 25.4)) / 537.6));
         }
     }
 
     public class Lift {
-        private DcMotor leftLift;
-        private DcMotor rightLift;
+        private final DcMotor leftLift;
+        private final DcMotor rightLift;
 
         private double maxPower = 1;
+
+        public int MIN_POSITION = 0;
+        public int MAX_POSITION = 0;
 
         public Lift(String leftLift, String rightLift) {
             this(hardwareMap.get(DcMotor.class, leftLift), hardwareMap.get(DcMotor.class, rightLift));
@@ -209,6 +219,8 @@ public class Robot {
         public Lift(DcMotor leftLift, DcMotor rightLift) {
             this.leftLift = leftLift;
             this.rightLift = rightLift;
+
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         public void setMotorDirection(boolean leftLift, boolean rightLift) {
@@ -231,8 +243,10 @@ public class Robot {
         }
 
         public void setPower(double power) {
-            leftLift.setPower(clip(power, maxPower));
-            rightLift.setPower(clip(power, maxPower));
+            if(power > 0 && rightLift.getCurrentPosition() < MAX_POSITION || power < 0 && rightLift.getCurrentPosition() > MIN_POSITION) {
+                leftLift.setPower(clip(power, maxPower));
+                rightLift.setPower(clip(power, maxPower));
+            }
         }
 
         public void setMaxPower(double maxPower) {
@@ -262,19 +276,16 @@ public class Robot {
         public void setMode(DcMotor.RunMode runMode) {
             if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
 
-            leftLift.setMode(runMode);
             rightLift.setMode(runMode);
         }
 
         public void resetEncoders() {
-            DcMotor.RunMode prevMode = leftLift.getMode();
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            setMode(prevMode);
         }
     }
 
     public class Arm {
-        private DcMotor arm;
+        private final DcMotor arm;
 
         private double maxPower = 1;
 
@@ -331,12 +342,12 @@ public class Robot {
         }
 
         public void setMode(DcMotor.RunMode runMode) {
-            if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
+            if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoder();
 
             arm.setMode(runMode);
         }
 
-        public void resetEncoders() {
+        public void resetEncoder() {
             DcMotor.RunMode prevMode = arm.getMode();
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             setMode(prevMode);
@@ -344,8 +355,11 @@ public class Robot {
     }
 
     public class Gripper {
-        private Servo gripper;
+        private final Servo gripper;
         private GripperPosition position;
+
+        private final double MIN_POSITION = 0.01;
+        private final double MAX_POSITION = 0.05;
 
         public Gripper(String gripper) {
             this(hardwareMap.get(Servo.class, gripper));
@@ -354,27 +368,24 @@ public class Robot {
         public Gripper(Servo gripper) {
             this.gripper = gripper;
             position = GripperPosition.OPEN;
+
+            gripper.scaleRange(MIN_POSITION, MAX_POSITION);
         }
 
         public void open() {
-            gripper.setDirection(Servo.Direction.FORWARD);
+            //gripper.setDirection(Servo.Direction.FORWARD);
             position = GripperPosition.CLOSED;
             gripper.setPosition(0);
         }
 
         public void close() {
-            gripper.setDirection(Servo.Direction.REVERSE);
+            //gripper.setDirection(Servo.Direction.REVERSE);
             position = GripperPosition.OPEN;
-            gripper.setPosition(0.03);
+            gripper.setPosition(1);
         }
 
         public GripperPosition getPosition() {
             return position;
-        }
-
-        public void print() {
-            telemetry.addData("pos", gripper.getPosition());
-            telemetry.update();
         }
     }
 

@@ -8,6 +8,5 @@ move
 moveForSeconds
 moveToPosition
 stop
-setEncoderMode DcMotor.RunMode
+setMode DcMotor.RunMode
 resetEncoders
-

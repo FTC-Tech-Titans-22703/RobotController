@@ -201,7 +201,7 @@ public class Robot {
         private DcMotor leftBack;
         private DcMotor rightBack;
 
-        private int maxPower = 1;
+        private double maxPower = 1;
 
         public MecanumDrive(String leftFront, String rightFront, String leftBack, String rightBack) {
             this(hardwareMap.get(DcMotor.class, leftFront), hardwareMap.get(DcMotor.class, rightFront), hardwareMap.get(DcMotor.class, leftBack), hardwareMap.get(DcMotor.class, rightBack));
@@ -240,17 +240,17 @@ public class Robot {
         }
 
         public void setPower(double leftFront, double rightFront, double leftBack, double rightBack) {
-            this.leftFront.setPower(Range.clip(leftFront, -maxPower, maxPower));
-            this.rightFront.setPower(Range.clip(rightFront, -maxPower, maxPower));
-            this.leftBack.setPower(Range.clip(leftBack, -maxPower, maxPower));
-            this.rightBack.setPower(Range.clip(rightBack, -maxPower, maxPower));
+            this.leftFront.setPower(clip(leftFront, maxPower));
+            this.rightFront.setPower(clip(rightFront, maxPower));
+            this.leftBack.setPower(clip(leftBack, maxPower));
+            this.rightBack.setPower(clip(rightBack, maxPower));
         }
 
         public void setMaxPower(int maxPower) {
-            this.maxPower = Range.clip(maxPower, -1, 1);
+            this.maxPower = clip(maxPower, 1);
         }
 
-        public int getMaxPower() {
+        public double getMaxPower() {
             return maxPower;
         }
 
@@ -273,26 +273,27 @@ public class Robot {
             setPower(0, 0, 0, 0);
         }
 
-        void setEncoderMode(DcMotor.RunMode encoderMode) {
-            if(encoderMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
+        void setMode(DcMotor.RunMode runMode) {
+            if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
 
-            leftFront.setMode(encoderMode);
-            rightFront.setMode(encoderMode);
-            leftBack.setMode(encoderMode);
-            rightBack.setMode(encoderMode);
+            leftFront.setMode(runMode);
+            rightFront.setMode(runMode);
+            leftBack.setMode(runMode);
+            rightBack.setMode(runMode);
         }
 
         void resetEncoders() {
-            leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            DcMotor.RunMode prevMode = leftFront.getMode();
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setMode(prevMode);
         }
     }
 
     public class Lift {
         private DcMotor leftLift;
         private DcMotor rightLift;
+
+        private double maxPower = 1;
 
         public Lift(String leftLift, String rightLift) {
             this(hardwareMap.get(DcMotor.class, leftLift), hardwareMap.get(DcMotor.class, rightLift));
@@ -302,10 +303,73 @@ public class Robot {
             this.leftLift = leftLift;
             this.rightLift = rightLift;
         }
+
+        public void setMotorDirection(boolean leftLift, boolean rightLift) {
+            setMotorDirection(leftLift ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
+                    rightLift ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        }
+
+        public void setMotorDirection(DcMotorSimple.Direction leftLift, DcMotorSimple.Direction rightLift) {
+            this.leftLift.setDirection(leftLift);
+            this.rightLift.setDirection(rightLift);
+        }
+
+        public void setBrakeMode(boolean brakes) {
+            setBrakeMode(brakes ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
+        }
+
+        public void setBrakeMode(DcMotor.ZeroPowerBehavior brakes) {
+            leftLift.setZeroPowerBehavior(brakes);
+            rightLift.setZeroPowerBehavior(brakes);
+        }
+
+        public void setPower(double power) {
+            leftLift.setPower(clip(power, maxPower));
+            rightLift.setPower(clip(power, maxPower));
+        }
+
+        public void setMaxPower(double maxPower) {
+            this.maxPower = clip(maxPower, 1);
+        }
+
+        public double getMaxPower() {
+            return maxPower;
+        }
+
+        public void move() {
+
+        }
+
+        public void moveForSeconds() {
+
+        }
+
+        public void moveToPosition() {
+
+        }
+
+        public void stop() {
+            setPower(0);
+        }
+
+        public void setMode(DcMotor.RunMode runMode) {
+            if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
+
+            leftLift.setMode(runMode);
+            rightLift.setMode(runMode);
+        }
+
+        public void resetEncoders() {
+            DcMotor.RunMode prevMode = leftLift.getMode();
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setMode(prevMode);
+        }
     }
 
     public class Arm {
         private DcMotor arm;
+
+        private double maxPower = 1;
 
         public Arm(String arm) {
             this(hardwareMap.get(DcMotor.class, arm));
@@ -313,6 +377,62 @@ public class Robot {
 
         public Arm(DcMotor arm) {
             this.arm = arm;
+        }
+
+        public void setMotorDirection(boolean arm) {
+            setMotorDirection(arm ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        }
+
+        public void setMotorDirection(DcMotorSimple.Direction arm) {
+            this.arm.setDirection(arm);
+        }
+
+        public void setBrakeMode(boolean brakes) {
+            setBrakeMode(brakes ? DcMotor.ZeroPowerBehavior.BRAKE : DcMotor.ZeroPowerBehavior.FLOAT);
+        }
+
+        public void setBrakeMode(DcMotor.ZeroPowerBehavior brakes) {
+            arm.setZeroPowerBehavior(brakes);
+        }
+
+        public void setPower(double power) {
+            arm.setPower(clip(power, maxPower));
+        }
+
+        public void setMaxPower(double maxPower) {
+            this.maxPower = clip(maxPower, 1);
+        }
+
+        public double getMaxPower() {
+            return maxPower;
+        }
+
+        public void move() {
+
+        }
+
+        public void moveForSeconds() {
+
+        }
+
+        public void moveToPosition() {
+
+        }
+
+        public void stop() {
+            setPower(0);
+        }
+
+        public void setMode(DcMotor.RunMode runMode) {
+            if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
+
+            arm.setMode(runMode);
+        }
+
+        public void resetEncoders() {
+            DcMotor.RunMode prevMode = arm.getMode();
+            setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            setMode(prevMode);
         }
     }
 
@@ -388,5 +508,9 @@ public class Robot {
                 telemetry.update();
             }
         }
+    }
+
+    private double clip(double value, double max) {
+        return Range.clip(value, -max, max);
     }
 }

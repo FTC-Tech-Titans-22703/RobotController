@@ -73,6 +73,7 @@ public class Robot {
         drivetrain.setMotorDirection(true, false, true, false);
 
         lift = new Lift("leftLift", "rightLift");
+        lift.setMotorDirection(true, false);
 
         arm = new Arm("arm");
 

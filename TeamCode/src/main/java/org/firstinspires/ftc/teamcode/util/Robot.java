@@ -37,6 +37,7 @@ public class Robot {
     public TelemetryLogger console;
 
     public static enum AprilTag {
+        NOT_FOUND(-1),
         LEFT(1),
         MIDDLE(2),
         RIGHT(3);
@@ -47,9 +48,14 @@ public class Robot {
         }
 
         public static AprilTag getTag(int id) {
+            if(id == -1) return NOT_FOUND;
             if(id == 1) return LEFT;
             if(id == 2) return MIDDLE;
             return RIGHT;
+        }
+
+        public static AprilTag getTag(AprilTagDetection tag) {
+            return getTag(tag == null ? -1 : tag.id);
         }
     }
 
@@ -76,123 +82,6 @@ public class Robot {
 
         runtime = new Runtime();
         console = new TelemetryLogger();
-    }
-
-    public class Vision {
-        private final WebcamName webcam;
-        public OpenCvCamera camera;
-        AprilTagDetectionPipeline aprilTagDetectionPipeline;
-
-        static final double FEET_PER_METER = 3.28084;
-
-        // Lens intrinsics
-        // UNITS ARE PIXELS
-        // NOTE: this calibration is for the C920 webcam at 800x448.
-        // You will need to do your own calibration for other configurations!
-        double fx = 578.272;
-        double fy = 578.272;
-        double cx = 402.145;
-        double cy = 221.506;
-
-        // UNITS ARE METERS
-        double tagsize = 0.06429863382690999;
-
-        public AprilTagDetection detectedTag = null;
-
-        public Vision(String webcam) {
-            this(hardwareMap.get(WebcamName.class, webcam));
-        }
-
-        public Vision(WebcamName webcam) {
-            this.webcam = webcam;
-        }
-
-        public void initScan() {
-            int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            camera = OpenCvCameraFactory.getInstance().createWebcam(webcam, cameraMonitorViewId);
-            aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
-
-            //Camera initializing and streaming/error handling
-            camera.setPipeline(aprilTagDetectionPipeline);
-            camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-
-                }
-            });
-
-            telemetry.setMsTransmissionInterval(50);
-        }
-
-        public void waitForStartAndScan() {
-            /*
-             * The INIT-loop:
-             * This REPLACES waitForStart!
-             */
-
-            while (!opMode.isStarted() && !opMode.isStopRequested()) {
-                ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
-
-                //Assign AprilTag is tag is detected
-                if (currentDetections.size() != 0) {
-                    boolean tagFound = false;
-                    for (AprilTagDetection tag : currentDetections) {
-                        if (tag.id == AprilTag.LEFT.id || tag.id == AprilTag.MIDDLE.id || tag.id == AprilTag.RIGHT.id) {
-                            detectedTag = tag;
-                            tagFound = true;
-                            break;
-                        }
-                    }
-
-                    if (tagFound) {
-                        telemetry.addLine("Tag Detected:");
-                        tagToTelemetry(detectedTag);
-                    } else {
-                        telemetry.addLine("Tag NOT Detected");
-
-                        if (detectedTag == null) {
-                            telemetry.addLine("(Tag has never been detected)");
-                        } else {
-                            telemetry.addLine("Previous Tag:");
-                            tagToTelemetry(detectedTag);
-                        }
-                    }
-
-                } else {
-                    telemetry.addLine("Tag NOT Detected");
-
-                    if (detectedTag == null) {
-                        telemetry.addLine("(Tag has never been detected)");
-                    } else {
-                        telemetry.addLine("Previous Tag:");
-                        tagToTelemetry(detectedTag);
-                    }
-                }
-
-                telemetry.update();
-                opMode.sleep(20);
-            }
-            telemetry.clearAll();
-            camera.stopStreaming();
-
-            opMode.sleep(3000);
-        }
-
-        private @SuppressLint("DefaultLocale")
-        void tagToTelemetry(AprilTagDetection detection) {
-            telemetry.addLine("\nDetected Tag = " + AprilTag.getTag(detection.id) + " (id: " + detection.id + ")");
-            telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x*FEET_PER_METER));
-            telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y*FEET_PER_METER));
-            telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z*FEET_PER_METER));
-            telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
-            telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
-            telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
-        }
     }
 
     public class MecanumDrive {
@@ -459,6 +348,125 @@ public class Robot {
 
         public GripperPosition getPosition() {
             return position;
+        }
+    }
+
+    public class Vision {
+        private final WebcamName webcam;
+        private OpenCvCamera camera;
+        private AprilTagDetectionPipeline aprilTagDetectionPipeline;
+
+        static final double FEET_PER_METER = 3.28084;
+
+        // Lens intrinsics
+        // UNITS ARE PIXELS
+        // NOTE: this calibration is for the C920 webcam at 800x448.
+        // You will need to do your own calibration for other configurations!
+        private final double fx = 578.272;
+        private final double fy = 578.272;
+        private final double cx = 402.145;
+        private final double cy = 221.506;
+
+        // UNITS ARE METERS
+        private final double tagsize = 0.06429863382690999;
+
+        public AprilTagDetection detectedTag = null;
+
+        public Vision(String webcam) {
+            this(hardwareMap.get(WebcamName.class, webcam));
+        }
+
+        public Vision(WebcamName webcam) {
+            this.webcam = webcam;
+        }
+
+        public void initScan() {
+            int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+            camera = OpenCvCameraFactory.getInstance().createWebcam(webcam, cameraMonitorViewId);
+            aprilTagDetectionPipeline = new AprilTagDetectionPipeline(tagsize, fx, fy, cx, cy);
+
+            //Camera initializing and streaming/error handling
+            camera.setPipeline(aprilTagDetectionPipeline);
+            camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+                @Override
+                public void onOpened() {
+                    camera.startStreaming(800,448, OpenCvCameraRotation.UPRIGHT);
+                }
+
+                @Override
+                public void onError(int errorCode) {
+
+                }
+            });
+
+            telemetry.setMsTransmissionInterval(50);
+        }
+
+        public void waitForStartAndScan() {
+            /*
+             * The INIT-loop:
+             * This REPLACES waitForStart!
+             */
+
+            while (!opMode.isStarted() && !opMode.isStopRequested()) {
+                ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
+
+                //Assign AprilTag is tag is detected
+                if (currentDetections.size() != 0) {
+                    boolean tagFound = false;
+                    for (AprilTagDetection tag : currentDetections) {
+                        if (tag.id == AprilTag.LEFT.id || tag.id == AprilTag.MIDDLE.id || tag.id == AprilTag.RIGHT.id) {
+                            detectedTag = tag;
+                            tagFound = true;
+                            break;
+                        }
+                    }
+
+                    if (tagFound) {
+                        telemetry.addLine("Tag Detected:");
+                        tagToTelemetry(detectedTag);
+                    }
+                    else {
+                        telemetry.addLine("Tag NOT Detected");
+
+                        if (detectedTag == null) {
+                            telemetry.addLine("(Tag has never been detected)");
+                        } else {
+                            telemetry.addLine("Previous Tag:");
+                            tagToTelemetry(detectedTag);
+                        }
+                    }
+
+                }
+                else {
+                    telemetry.addLine("Tag NOT Detected");
+
+                    if (detectedTag == null) {
+                        telemetry.addLine("(Tag has never been detected)");
+                    }
+                    else {
+                        telemetry.addLine("Previous Tag:");
+                        tagToTelemetry(detectedTag);
+                    }
+                }
+
+                telemetry.update();
+                opMode.sleep(20);
+            }
+
+            telemetry.clearAll();
+            camera.stopStreaming();
+        }
+
+        private @SuppressLint("DefaultLocale")
+        void tagToTelemetry(AprilTagDetection detection) {
+            telemetry.addLine("\nDetected Tag = " + AprilTag.getTag(detection.id) + " (id: " + detection.id + ")");
+            telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x * FEET_PER_METER));
+            telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y * FEET_PER_METER));
+            telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z * FEET_PER_METER));
+            telemetry.addLine(String.format("Rotation Yaw: %.2f degrees", Math.toDegrees(detection.pose.yaw)));
+            telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
+            telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
         }
     }
 

@@ -46,17 +46,6 @@ public class Robot {
         AprilTag(int id) {
             this.id = id;
         }
-
-        public static AprilTag getTag(int id) {
-            if(id == -1) return NOT_FOUND;
-            if(id == 1) return LEFT;
-            if(id == 2) return MIDDLE;
-            return RIGHT;
-        }
-
-        public static AprilTag getTag(AprilTagDetection tag) {
-            return getTag(tag == null ? -1 : tag.id);
-        }
     }
 
     public static enum GripperPosition {
@@ -71,6 +60,7 @@ public class Robot {
 
         drivetrain = new MecanumDrive("leftFront", "rightFront", "leftBack", "rightBack");
         drivetrain.setMotorDirection(true, false, true, false);
+        drivetrain.setBrakeMode(true);
 
         lift = new Lift("leftLift", "rightLift");
         lift.setMotorDirection(true, false);
@@ -129,6 +119,13 @@ public class Robot {
             rightBack.setZeroPowerBehavior(brakes);
         }
 
+        public void setDriveMode(DcMotor.RunMode driveMode) {
+            leftFront.setMode(driveMode);
+            rightFront.setMode(driveMode);
+            leftBack.setMode(driveMode);
+            rightBack.setMode(driveMode);
+        }
+
         public void setPower(double leftFront, double rightFront, double leftBack, double rightBack) {
             this.leftFront.setPower(clip(leftFront, maxPower));
             this.rightFront.setPower(clip(rightFront, maxPower));
@@ -151,19 +148,35 @@ public class Robot {
                     fwdBackPower - turnPower + strafePower);
         }
 
-        public void moveForSeconds(double leftFront, double rightFront, double leftBack, double rightBack, double seconds) {
-
+        public void moveForSeconds(double fwdBackPower, double strafePower, double turnPower, int time) {
+            drivetrain.move(fwdBackPower, strafePower, turnPower);
+            runtime.wait(time);
+            drivetrain.stop();
+            runtime.wait(50);
         }
+        //11.87329
+        public void moveToPosition(double fwdBackPower, double strafePower, double turnPower, int pos) {
+            drivetrain.resetEncoders();
+            leftFront.setTargetPosition(pos);
+            rightFront.setTargetPosition(pos);
+            leftBack.setTargetPosition(pos);
+            rightBack.setTargetPosition(pos);
+            drivetrain.setDriveMode(DcMotor.RunMode.RUN_TO_POSITION);
+            drivetrain.move(fwdBackPower, strafePower, turnPower);
 
-        public void moveToPosition() {
-
+            while (opMode.opModeIsActive() && (rightFront.isBusy() || leftFront.isBusy() || rightBack.isBusy() || leftBack.isBusy())) {
+                telemetry.addData("pos", leftFront.getCurrentPosition());
+                telemetry.update();
+                opMode.idle();
+            }
+            drivetrain.stop();
         }
 
         public void stop() {
             setPower(0, 0, 0, 0);
         }
 
-        void setMode(DcMotor.RunMode runMode) {
+        public void setMode(DcMotor.RunMode runMode) {
             if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoders();
 
             leftFront.setMode(runMode);
@@ -172,10 +185,16 @@ public class Robot {
             rightBack.setMode(runMode);
         }
 
-        void resetEncoders() {
+        public void resetEncoders() {
             DcMotor.RunMode prevMode = leftFront.getMode();
             setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            setMode(prevMode);
+            //setMode(prevMode);
+        }
+
+        public void print() {
+            telemetry.addData("pos", leftBack.getCurrentPosition());
+            telemetry.update();
+            opMode.idle();
         }
     }
 
@@ -371,7 +390,7 @@ public class Robot {
         // UNITS ARE METERS
         private final double tagsize = 0.06429863382690999;
 
-        public AprilTagDetection detectedTag = null;
+        private AprilTagDetection detectedTag = null;
 
         public Vision(String webcam) {
             this(hardwareMap.get(WebcamName.class, webcam));
@@ -460,7 +479,7 @@ public class Robot {
 
         private @SuppressLint("DefaultLocale")
         void tagToTelemetry(AprilTagDetection detection) {
-            telemetry.addLine("\nDetected Tag = " + AprilTag.getTag(detection.id) + " (id: " + detection.id + ")");
+            telemetry.addLine("\nDetected Tag = " + getDetectedTag() + " (id: " + detection.id + ")");
             telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x * FEET_PER_METER));
             telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y * FEET_PER_METER));
             telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z * FEET_PER_METER));
@@ -468,10 +487,17 @@ public class Robot {
             telemetry.addLine(String.format("Rotation Pitch: %.2f degrees", Math.toDegrees(detection.pose.pitch)));
             telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
         }
+
+        public AprilTag getDetectedTag() {
+            if(detectedTag.id == -1) return AprilTag.NOT_FOUND;
+            if(detectedTag.id == 1) return AprilTag.LEFT;
+            if(detectedTag.id == 2) return AprilTag.MIDDLE;
+            return AprilTag.RIGHT;
+        }
     }
 
     //Runtime
-    private static class Runtime {
+    public static class Runtime {
         private final ElapsedTime runtime;
 
         public Runtime() {
@@ -490,6 +516,11 @@ public class Robot {
 
         public int getTime() {
             return (int) runtime.milliseconds();
+        }
+
+        public void wait(int time) {
+            reset();
+            while(runtime.milliseconds() < time) {}
         }
     }
 

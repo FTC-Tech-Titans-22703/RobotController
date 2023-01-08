@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.util.Robot;
+import org.firstinspires.ftc.teamcode.util.Robot.Robot;
 
 @Autonomous(name = "Park", group = "Main")
 public class Park extends LinearOpMode {

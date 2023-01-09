@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.util.Robot.Robot;
 
-@TeleOp(name = "TeleOP", group = "main")
+@TeleOp(name = "TeleOP", group = "TeleOp")
 public class TeleOP extends LinearOpMode {
     private Robot robot;
     private double reverseDrive = 1;

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.util.Robot.Types.AprilTag;
 import org.firstinspires.ftc.teamcode.util.Robot.Robot;
 
-@Autonomous(name = "Park", group = "Main")
+@Autonomous(name = "Park", group = "Autonomous")
 public class Park extends LinearOpMode {
     private Robot robot;
 

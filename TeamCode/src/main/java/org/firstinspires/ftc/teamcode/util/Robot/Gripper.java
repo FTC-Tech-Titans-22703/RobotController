@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.util.Robot;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Gripper extends Subsystem {
-    private Servo gripper;
+    private final Servo gripper;
     private GripperPosition position;
 
     private final double MIN_POSITION = 0.01;

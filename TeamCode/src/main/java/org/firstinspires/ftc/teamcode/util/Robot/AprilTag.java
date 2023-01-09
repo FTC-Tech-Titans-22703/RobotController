@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.util.Robot;
 
-enum AprilTag {
+public enum AprilTag {
     NOT_FOUND(-1),
     LEFT(1),
     MIDDLE(2),

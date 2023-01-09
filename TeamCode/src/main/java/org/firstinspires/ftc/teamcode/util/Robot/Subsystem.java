@@ -7,8 +7,7 @@ public abstract class Subsystem {
 
     Robot robot;
 
-
     public double clip(double value, double max) {
-        return Range.clip(value, -max, max);
+        return max * Range.clip(value, -1, 1);
     }
 }

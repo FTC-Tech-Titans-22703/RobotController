@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class TelemetryLogger {
-    private final HashMap<String, Object> data;
     private final Telemetry telemetry;
+    private final HashMap<String, Object> data;
 
     public TelemetryLogger(Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -27,5 +27,9 @@ public class TelemetryLogger {
 
             telemetry.update();
         }
+    }
+
+    public void remove(String caption) {
+        data.remove(caption);
     }
 }

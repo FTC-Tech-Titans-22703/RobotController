@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.util.Robot.AprilTag;
+import org.firstinspires.ftc.teamcode.util.Robot.Types.AprilTag;
 import org.firstinspires.ftc.teamcode.util.Robot.Robot;
 
 @Autonomous(name = "Park", group = "Main")

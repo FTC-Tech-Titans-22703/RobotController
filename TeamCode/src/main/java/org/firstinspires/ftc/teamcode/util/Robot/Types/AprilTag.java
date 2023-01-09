@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.util.Robot;
+package org.firstinspires.ftc.teamcode.util.Robot.Types;
 
 public enum AprilTag {
     NOT_FOUND(-1),

@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.util.Robot;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Lift extends Subsystem {
-    private final DcMotor leftLift;
-    private final DcMotor rightLift;
+    private final DcMotorEx leftLift;
+    private final DcMotorEx rightLift;
 
     private double maxPower = 1;
 
@@ -15,8 +16,8 @@ public class Lift extends Subsystem {
     public Lift(String leftLift, String rightLift, Robot robot) {
         this.robot = robot;
 
-        this.leftLift = robot.hardwareMap.get(DcMotor.class, leftLift);
-        this.rightLift = robot.hardwareMap.get(DcMotor.class, rightLift);
+        this.leftLift = robot.hardwareMap.get(DcMotorEx.class, leftLift);
+        this.rightLift = robot.hardwareMap.get(DcMotorEx.class, rightLift);
 
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }

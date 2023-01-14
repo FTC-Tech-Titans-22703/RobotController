@@ -1,15 +1,16 @@
 package org.firstinspires.ftc.teamcode.util.Robot;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Arm extends Subsystem {
-    private final DcMotor arm;
+    private final DcMotorEx arm;
 
     private double maxPower = 1;
 
     public Arm(String arm, Robot robot) {
-        this.arm = robot.hardwareMap.get(DcMotor.class, arm);
+        this.arm = robot.hardwareMap.get(DcMotorEx.class, arm);
     }
 
     public void setMotorDirection(boolean arm) {

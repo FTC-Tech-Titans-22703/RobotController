@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode.util.Robot;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class MecanumDrive extends Subsystem {
-    private final DcMotor leftFront;
-    private final DcMotor rightFront;
-    private final DcMotor leftBack;
-    private final DcMotor rightBack;
+    private final DcMotorEx leftFront;
+    private final DcMotorEx rightFront;
+    private final DcMotorEx leftBack;
+    private final DcMotorEx rightBack;
 
     private double maxPower = 1;
 
@@ -17,10 +18,10 @@ public class MecanumDrive extends Subsystem {
     public MecanumDrive(String leftFront, String rightFront, String leftBack, String rightBack, Robot robot) {
         this.robot = robot;
 
-        this.leftFront = robot.hardwareMap.get(DcMotor.class, leftFront);
-        this.rightFront = robot.hardwareMap.get(DcMotor.class, rightFront);
-        this.leftBack = robot.hardwareMap.get(DcMotor.class, leftBack);
-        this.rightBack = robot.hardwareMap.get(DcMotor.class, rightBack);
+        this.leftFront = robot.hardwareMap.get(DcMotorEx.class, leftFront);
+        this.rightFront = robot.hardwareMap.get(DcMotorEx.class, rightFront);
+        this.leftBack = robot.hardwareMap.get(DcMotorEx.class, leftBack);
+        this.rightBack = robot.hardwareMap.get(DcMotorEx.class, rightBack);
 
         resetEncoders();
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);

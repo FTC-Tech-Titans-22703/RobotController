@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.MecanumDriveOdometry;
  * This is a simple routine to test turning capabilities.
  */
 @Config
-@Autonomous(group = "Roadrunner Config")
+@Autonomous(group = "2")
 public class TurnTest extends LinearOpMode {
     public static double ANGLE = 90; // deg
 

@@ -168,6 +168,10 @@ public class MecanumDriveOdometry extends MecanumDrive {
         followTrajectorySequenceAsync(trajectorySequence);
         waitForIdle();
     }
+    
+    public void breakFollowing() {
+        trajectorySequenceRunner.breakFollowing();
+    }
 
     public Pose2d getLastError() {
         return trajectorySequenceRunner.getLastPoseError();

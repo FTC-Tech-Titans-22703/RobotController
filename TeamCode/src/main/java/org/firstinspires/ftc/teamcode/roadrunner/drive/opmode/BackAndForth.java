@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.MecanumDriveOdometry;
  * is recommended that you use the FollowerPIDTuner opmode for further fine tuning.
  */
 @Config
-@Autonomous(group = "Roadrunner Config")
+@Autonomous(group = "2")
 public class BackAndForth extends LinearOpMode {
 
     public static double DISTANCE = 50;

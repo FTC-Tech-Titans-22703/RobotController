@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "Encoder Test", group = "Test")
+@Autonomous(name = "Encoder Test", group = "1")
 public class EncoderTest extends LinearOpMode {
     @Override
     public void runOpMode() {

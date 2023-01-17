@@ -10,7 +10,7 @@ public class Robot {
     public Telemetry telemetry;
     public HardwareMap hardwareMap;
 
-    public MecanumDrive drivetrain;
+    public MecanumDriveOdometry drivetrain;
     public Lift lift;
     public Arm arm;
     public Gripper gripper;

@@ -30,7 +30,7 @@ import java.util.List;
  *      regression.
  */
 @Config
-@Autonomous(group = "Roadrunner Config")
+@Autonomous(group = "2")
 public class AutomaticFeedforwardTuner extends LinearOpMode {
     public static double MAX_POWER = 0.7;
     public static double DISTANCE = 70; // in

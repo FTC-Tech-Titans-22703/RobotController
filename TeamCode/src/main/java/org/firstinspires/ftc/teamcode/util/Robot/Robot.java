@@ -7,8 +7,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Robot {
     public LinearOpMode opMode;
-    public Telemetry telemetry;
+    public MultipleTelemetry telemetry;
     public HardwareMap hardwareMap;
+    public FtcDashboard dashboard;
 
     public MecanumDriveOdometry drivetrain;
     public Lift lift;
@@ -18,16 +19,16 @@ public class Robot {
     public Vision vision;
 
     public Runtime runtime;
-    public TelemetryLogger logger;
 
     public Robot(LinearOpMode opMode) {
         this.opMode = opMode;
-        this.hardwareMap = opMode.hardwareMap;
-        this.telemetry = opMode.telemetry;
+     
+        hardwareMap = opMode.hardwareMap;
+        dashboard = FtcDashboard.getInstance();
+        
+        telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
 
-        drivetrain = new MecanumDrive("leftFront", "rightFront", "leftRear", "rightRear", this);
-        drivetrain.setMotorDirection(true, false, true, false);
-        drivetrain.setBrakeMode(true);
+        drivetrain = new MecanumDriveOdometry(hardwareMap);
 
         //lift = new Lift("leftLift", "rightLift", this);
         //lift.setMotorDirection(true, false);
@@ -39,6 +40,5 @@ public class Robot {
         //vision = new Vision("Webcam 1", this);
 
         runtime = new Runtime();
-        logger = new TelemetryLogger(telemetry);
     }
 }

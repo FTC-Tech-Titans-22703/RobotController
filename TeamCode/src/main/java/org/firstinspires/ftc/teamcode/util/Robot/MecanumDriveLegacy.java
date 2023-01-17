@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class MecanumDrive extends Subsystem {
+public class MecanumDriveLegacy extends Subsystem {
     private final DcMotorEx leftFront;
     private final DcMotorEx rightFront;
     private final DcMotorEx leftBack;
@@ -15,7 +15,7 @@ public class MecanumDrive extends Subsystem {
     private final double WHEEL_RADIUS_INCHES = 1.88976377953;
     private final double MOTOR_CPR = 537.6;
 
-    public MecanumDrive(String leftFront, String rightFront, String leftBack, String rightBack, Robot robot) {
+    public MecanumDriveLegacy(String leftFront, String rightFront, String leftBack, String rightBack, Robot robot) {
         this.robot = robot;
 
         this.leftFront = robot.hardwareMap.get(DcMotorEx.class, leftFront);

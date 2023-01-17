@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 
 @Config
-@Autonomous(group = "Roadrunner Config")
+@Autonomous(group = "2")
 public class MaxAngularVeloTuner extends LinearOpMode {
     public static double RUNTIME = 4.0;
 

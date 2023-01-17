@@ -24,11 +24,11 @@ public class TeleOP extends LinearOpMode {
             robot.drivetrain.move((driveMode ? gamepad1.left_stick_y : gamepad1.right_stick_y) * -reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed), (driveMode ? gamepad1.left_stick_x : gamepad1.right_stick_x) * reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed), (driveMode ? gamepad1.right_stick_x : gamepad1.left_stick_x) * reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed));
 
             if(gamepad1.right_bumper) {
-                robot.gripper.open();
+                //robot.gripper.open();
             }
 
             if(gamepad1.left_bumper) {
-                robot.gripper.close();
+                //robot.gripper.close();
             }
 
             /*

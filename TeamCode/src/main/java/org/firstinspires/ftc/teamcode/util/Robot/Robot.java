@@ -25,18 +25,18 @@ public class Robot {
         this.hardwareMap = opMode.hardwareMap;
         this.telemetry = opMode.telemetry;
 
-        drivetrain = new MecanumDrive("leftFront", "rightFront", "leftBack", "rightBack", this);
+        drivetrain = new MecanumDrive("leftFront", "rightFront", "leftRear", "rightRear", this);
         drivetrain.setMotorDirection(true, false, true, false);
         drivetrain.setBrakeMode(true);
 
-        lift = new Lift("leftLift", "rightLift", this);
-        lift.setMotorDirection(true, false);
+        //lift = new Lift("leftLift", "rightLift", this);
+        //lift.setMotorDirection(true, false);
 
-        arm = new Arm("arm", this);
+        //arm = new Arm("arm", this);
 
-        gripper = new Gripper("gripper", this);
+        //gripper = new Gripper("gripper", this);
 
-        vision = new Vision("Webcam 1", this);
+        //vision = new Vision("Webcam 1", this);
 
         runtime = new Runtime();
         logger = new TelemetryLogger(telemetry);

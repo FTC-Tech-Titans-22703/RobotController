@@ -40,7 +40,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.MecanumDriveOdometry;
  */
 @Disabled
 @Config
-@TeleOp(group = "Roadrunner Config")
+@TeleOp(group = "2")
 public class MotorDirectionDebugger extends LinearOpMode {
     public static double MOTOR_POWER = 0.7;
 

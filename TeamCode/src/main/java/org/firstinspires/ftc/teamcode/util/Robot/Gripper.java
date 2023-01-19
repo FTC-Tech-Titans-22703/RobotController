@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.util.Robot;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.util.Robot.Types.GripperPosition;
 
+@Config
 public class Gripper extends Subsystem {
     private final Servo gripper;
     private GripperPosition position;

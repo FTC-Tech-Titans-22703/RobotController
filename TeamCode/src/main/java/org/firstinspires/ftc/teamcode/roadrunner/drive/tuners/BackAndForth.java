@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.roadrunner.drive.opmode;
+package org.firstinspires.ftc.teamcode.roadrunner.drive.tuners;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.drive.MecanumDriveOdometry;
 @Autonomous(group = "2")
 public class BackAndForth extends LinearOpMode {
 
-    public static double DISTANCE = 50;
+    public static double DISTANCE = 72;
 
     @Override
     public void runOpMode() throws InterruptedException {

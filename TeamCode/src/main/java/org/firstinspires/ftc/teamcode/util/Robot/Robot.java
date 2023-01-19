@@ -33,14 +33,13 @@ public class Robot {
 
         drivetrain = new MecanumDriveOdometry(hardwareMap);
 
-        //lift = new Lift("leftLift", "rightLift", this);
-        //lift.setMotorDirection(true, false);
+        lift = new Lift("leftLift", "rightLift", this);
 
-        //arm = new Arm("arm", this);
+        arm = new Arm("leftArm", "rightArm", this);
 
-        //gripper = new Gripper("gripper", this);
+        gripper = new Gripper("gripper", this);
 
-        //vision = new Vision("Webcam 1", this);
+        vision = new Vision("Webcam 1", this);
 
         runtime = new Runtime();
     }

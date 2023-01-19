@@ -1,24 +1,56 @@
 package org.firstinspires.ftc.teamcode.util.Robot;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+@Config
 public class Arm extends Subsystem {
-    private final DcMotorEx arm;
+    private final DcMotorEx leftArm;
+    private final DcMotorEx rightArm;
 
-    private double maxPower = 1;
+    private double maxPower = 0.7;
 
-    public Arm(String arm, Robot robot) {
-        this.arm = robot.hardwareMap.get(DcMotorEx.class, arm);
+    public final static int MIN_POSITION = 0;
+    public final static int MAX_POSITION = 215;
+
+    public static double p = 12;
+    public static double kP = 12;
+    public static double kI = 5;
+    public static double kD = 0;
+    public static double kF = 22;
+
+    public static int posThresholdTop = 7;
+    public static int posThresholdBottom = 7;
+
+    public static double slowSpeed = 0.4;
+
+    public Arm(String leftArm, String rightArm, Robot robot) {
+        this.robot = robot;
+
+        this.leftArm = robot.hardwareMap.get(DcMotorEx.class, leftArm);
+        this.rightArm = robot.hardwareMap.get(DcMotorEx.class, rightArm);
+
+        setMotorDirection(false, true);
+
+        resetEncoder();
+        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        this.leftArm.setPositionPIDFCoefficients(p);
+        this.leftArm.setVelocityPIDFCoefficients(kP, kI, kD, kF);
+        this.rightArm.setPositionPIDFCoefficients(p);
+        this.rightArm.setVelocityPIDFCoefficients(kP, kI, kD, kF);
     }
 
-    public void setMotorDirection(boolean arm) {
-        setMotorDirection(arm ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+    public void setMotorDirection(boolean leftArm, boolean rightArm) {
+        setMotorDirection(leftArm ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE,
+                rightArm ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
     }
 
-    public void setMotorDirection(DcMotorSimple.Direction arm) {
-        this.arm.setDirection(arm);
+    public void setMotorDirection(DcMotorSimple.Direction leftArm, DcMotorSimple.Direction rightArm) {
+        this.leftArm.setDirection(leftArm);
+        this.rightArm.setDirection(rightArm);
     }
 
     public void setBrakeMode(boolean brakes) {
@@ -26,11 +58,36 @@ public class Arm extends Subsystem {
     }
 
     public void setBrakeMode(DcMotor.ZeroPowerBehavior brakes) {
-        arm.setZeroPowerBehavior(brakes);
+        leftArm.setZeroPowerBehavior(brakes);
+        rightArm.setZeroPowerBehavior(brakes);
+    }
+
+
+    public void setPowerAdjusted(double power) {
+        if(power > 0.15 && Math.abs(leftArm.getCurrentPosition() - MAX_POSITION) > posThresholdTop && Math.abs(rightArm.getCurrentPosition() - MAX_POSITION) > posThresholdTop ||
+                power < -0.15 && Math.abs(leftArm.getCurrentPosition() - MIN_POSITION) > posThresholdBottom && Math.abs(rightArm.getCurrentPosition() - MIN_POSITION) > posThresholdBottom) {
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            if(rightArm.getCurrentPosition() < 100 || leftArm.getCurrentPosition() < 100 || rightArm.getCurrentPosition() > MAX_POSITION - 100 || leftArm.getCurrentPosition() > MAX_POSITION - 100) {
+                setPower(clip(power, slowSpeed));
+            } else {
+                setPower(power);
+            }
+        } else {
+            if(Math.abs(leftArm.getCurrentPosition() - MIN_POSITION) <= posThresholdBottom) {
+                setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.opMode.idle();
+            }
+
+            leftArm.setTargetPosition(leftArm.getCurrentPosition());
+            rightArm.setTargetPosition(leftArm.getCurrentPosition());
+            setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        }
     }
 
     public void setPower(double power) {
-        arm.setPower(clip(power, maxPower));
+        leftArm.setPower(clip(power, maxPower));
+        rightArm.setPower(clip(power, maxPower));
     }
 
     public void setMaxPower(double maxPower) {
@@ -41,8 +98,19 @@ public class Arm extends Subsystem {
         return maxPower;
     }
 
-    public void move() {
+    public void move(int targetPosition, double power) {
+        resetEncoder();
 
+        leftArm.setTargetPosition(targetPosition);
+        rightArm.setTargetPosition(targetPosition);
+
+        setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        setPower(power);
+
+        while(robot.opMode.opModeIsActive() && isBusy()) {
+            robot.opMode.idle();
+        }
     }
 
     public void moveForSeconds() {
@@ -58,14 +126,20 @@ public class Arm extends Subsystem {
     }
 
     public void setMode(DcMotor.RunMode runMode) {
-        if(runMode == DcMotor.RunMode.RUN_TO_POSITION) resetEncoder();
-
-        arm.setMode(runMode);
+        leftArm.setMode(runMode);
+        rightArm.setMode(runMode);
     }
 
     public void resetEncoder() {
-        DcMotor.RunMode prevMode = arm.getMode();
         setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        setMode(prevMode);
+    }
+
+    public void print() {
+        robot.telemetry.addData("left", leftArm.getCurrentPosition());
+        robot.telemetry.addData("right", rightArm.getCurrentPosition());
+    }
+
+    public boolean isBusy() {
+        return leftArm.isBusy() || rightArm.isBusy();
     }
 }

@@ -10,10 +10,10 @@ public class Arm extends Subsystem {
     private final DcMotorEx leftArm;
     private final DcMotorEx rightArm;
 
-    private double maxPower = 0.7;
+    private double maxPower = 0.8;
 
     public final static int MIN_POSITION = 0;
-    public final static int MAX_POSITION = 215;
+    public final static int MAX_POSITION = 200;
 
     public static double p = 12;
     public static double kP = 12;
@@ -24,7 +24,7 @@ public class Arm extends Subsystem {
     public static int posThresholdTop = 7;
     public static int posThresholdBottom = 7;
 
-    public static double slowSpeed = 0.4;
+    public static double slowSpeed = 0.3;
 
     public Arm(String leftArm, String rightArm, Robot robot) {
         this.robot = robot;
@@ -68,10 +68,11 @@ public class Arm extends Subsystem {
                 power < -0.15 && Math.abs(leftArm.getCurrentPosition() - MIN_POSITION) > posThresholdBottom && Math.abs(rightArm.getCurrentPosition() - MIN_POSITION) > posThresholdBottom) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            if(rightArm.getCurrentPosition() < 100 || leftArm.getCurrentPosition() < 100 || rightArm.getCurrentPosition() > MAX_POSITION - 100 || leftArm.getCurrentPosition() > MAX_POSITION - 100) {
+            if((rightArm.getCurrentPosition() < 20 || leftArm.getCurrentPosition() < 20) && power > 0.15 || (rightArm.getCurrentPosition() > MAX_POSITION - 20 || leftArm.getCurrentPosition() > MAX_POSITION - 20) && power < -0.15){
+                setPower(clip(power, 0.7));
+            }
+            else{
                 setPower(clip(power, slowSpeed));
-            } else {
-                setPower(power);
             }
         } else {
             if(Math.abs(leftArm.getCurrentPosition() - MIN_POSITION) <= posThresholdBottom) {

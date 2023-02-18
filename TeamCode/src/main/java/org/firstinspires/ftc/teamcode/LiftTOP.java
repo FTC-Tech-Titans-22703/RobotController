@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.util.Robot.Robot;
 @TeleOp(name = "LiftTOP", group = "1")
 public class LiftTOP extends LinearOpMode {
     private Robot robot;
+
     @Override
     public void runOpMode() throws InterruptedException {
         robot = new Robot(this);

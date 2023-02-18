@@ -4,16 +4,22 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 public class MecanumDriveLegacy extends Subsystem {
     private final DcMotorEx leftFront;
     private final DcMotorEx rightFront;
     private final DcMotorEx leftBack;
     private final DcMotorEx rightBack;
 
-    private double maxPower = 1;
+    private double maxPower = 0.5;
 
     private final double WHEEL_RADIUS_INCHES = 1.88976377953;
     private final double MOTOR_CPR = 537.6;
+
+    private final double MAX_FORWARD = 25;
+    private final double MAX_LEFT = 27;
+    private final double MAX_RIGHT = 27;
 
     public MecanumDriveLegacy(String leftFront, String rightFront, String leftBack, String rightBack, Robot robot) {
         this.robot = robot;
@@ -22,6 +28,9 @@ public class MecanumDriveLegacy extends Subsystem {
         this.rightFront = robot.hardwareMap.get(DcMotorEx.class, rightFront);
         this.leftBack = robot.hardwareMap.get(DcMotorEx.class, leftBack);
         this.rightBack = robot.hardwareMap.get(DcMotorEx.class, rightBack);
+
+        setMotorDirection(true, false, true, false);
+        setBrakeMode(true);
 
         resetEncoders();
         setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -72,6 +81,16 @@ public class MecanumDriveLegacy extends Subsystem {
                 fwdBackPower - turnPower - strafePower,
                 fwdBackPower + turnPower - strafePower,
                 fwdBackPower - turnPower + strafePower);
+    }
+
+    public void moveForward(double power){
+
+    }
+    public void moveLeft(double power){
+
+    }
+    public void moveRight(double power){
+
     }
 
     public void moveForSeconds(double fwdBackPower, double strafePower, double turnPower, int time) {

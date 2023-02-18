@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.util.Robot.Arm;
 import org.firstinspires.ftc.teamcode.util.Robot.Lift;
@@ -17,8 +19,8 @@ public class TeleOP extends LinearOpMode {
 
     private boolean driveMode = true;
 
-    private double slowSpeed = 0.3;
-    private double fastSpeed = 0.78;
+    private double slowSpeed = 0.15;
+    private double fastSpeed = 0.75;
 
     public LiftPosition liftPosition;
     public ArmPosition armPosition;
@@ -34,8 +36,25 @@ public class TeleOP extends LinearOpMode {
 
         waitForStart();
 
+        robot.lift.resetEncoders();
+        robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        robot.arm.resetEncoder();
+        robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         while(opModeIsActive()) {
-            //robot.drivetrain.move((driveMode ? gamepad1.left_stick_y : gamepad1.right_stick_y) * -reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed), (driveMode ? gamepad1.left_stick_x : gamepad1.right_stick_x) * reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed), (driveMode ? gamepad1.right_stick_x : gamepad1.left_stick_x) * reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed));
+            robot.drivetrain.move((driveMode ? gamepad1.left_stick_y : gamepad1.right_stick_y) * -reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed), (driveMode ? gamepad1.left_stick_x : gamepad1.right_stick_x) * reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed), (driveMode ? gamepad1.right_stick_x : gamepad1.left_stick_x) * reverseDrive * (gamepad1.right_trigger > 0.3 ? slowSpeed : fastSpeed));
+
+            robot.lift.setPowerAdjusted(-gamepad2.left_stick_y);
+            robot.arm.setPowerAdjusted(-gamepad2.right_stick_y);
+
+            if(gamepad2.left_trigger > 0.5) {
+                robot.gripper.close();
+            }
+
+            if(gamepad2.right_trigger > 0.5) {
+                robot.gripper.open();
+            }
 
             //Gamepad2 - Lift Positions
             if(gamepad2.dpad_down){
@@ -50,6 +69,7 @@ public class TeleOP extends LinearOpMode {
             if(gamepad2.dpad_up){
                 liftPosition = LiftPosition.HIGH;
             }
+
             //Gamepad2 - Arm Positions
             if(gamepad2.left_bumper){
                 armPosition = ArmPosition.FRONT;
@@ -58,8 +78,7 @@ public class TeleOP extends LinearOpMode {
                 armPosition = ArmPosition.BACK;
             }
 
-
-
+            /*
             switch(liftPosition){
                 case GROUND:
                     robot.lift.move(LiftPosition.GROUND.pos, 0.7);
@@ -73,7 +92,6 @@ public class TeleOP extends LinearOpMode {
                 case HIGH:
                     robot.lift.move(LiftPosition.HIGH.pos, 0.7);
                     break;
-
             }
 
             switch(armPosition){
@@ -84,7 +102,9 @@ public class TeleOP extends LinearOpMode {
                     robot.arm.move(Arm.MAX_POSITION, 0.7);
                     break;
             }
+            */
 
+            /*
             switch(gripperPosition){
                 case OPEN:
                     robot.gripper.open();
@@ -93,6 +113,7 @@ public class TeleOP extends LinearOpMode {
                     robot.gripper.close();
                     break;
             }
+             */
 
             telemetry.addData("Reverse", reverseDrive == -1);
             //telemetry.addData("Speed", (int) (robot.drivetrain.getMaxPower() * 100) + "%");

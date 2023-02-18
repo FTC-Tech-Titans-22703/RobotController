@@ -12,10 +12,10 @@ public class Lift extends Subsystem {
     private final DcMotorEx leftLift;
     private final DcMotorEx rightLift;
 
-    private double maxPower = 1;
+    private double maxPower = 0.7;
 
     public final static int MIN_POSITION = 0;
-    public final static int MAX_POSITION = 215;
+    public final static int MAX_POSITION = 1630;
 
     public static double p = 8;
     public static double kP = 11.7;
@@ -31,8 +31,8 @@ public class Lift extends Subsystem {
     public Lift(String leftLift, String rightLift, Robot robot) {
         this.robot = robot;
 
-        this.leftLift = (DcMotorEx) robot.hardwareMap.get(DcMotorEx.class, leftLift);
-        this.rightLift = (DcMotorEx) robot.hardwareMap.get(DcMotorEx.class, rightLift);
+        this.leftLift = robot.hardwareMap.get(DcMotorEx.class, leftLift);
+        this.rightLift = robot.hardwareMap.get(DcMotorEx.class, rightLift);
 
         setMotorDirection(false, true);
 

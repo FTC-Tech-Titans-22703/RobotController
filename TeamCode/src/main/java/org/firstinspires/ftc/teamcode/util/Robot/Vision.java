@@ -117,8 +117,8 @@ public class Vision extends Subsystem{
 
     private @SuppressLint("DefaultLocale")
     void tagToTelemetry(AprilTagDetection detection) {
-        /*
         robot.telemetry.addLine("\nDetected Tag = " + getDetectedTag() + " (id: " + detection.id + ")");
+        /*
         robot.telemetry.addLine(String.format("Translation X: %.2f feet", detection.pose.x * FEET_PER_METER));
         robot.telemetry.addLine(String.format("Translation Y: %.2f feet", detection.pose.y * FEET_PER_METER));
         robot.telemetry.addLine(String.format("Translation Z: %.2f feet", detection.pose.z * FEET_PER_METER));
@@ -129,6 +129,7 @@ public class Vision extends Subsystem{
     }
 
     public AprilTag getDetectedTag() {
+        if(detectedTag == null) return AprilTag.NOT_FOUND;
         if(detectedTag.id == -1) return AprilTag.NOT_FOUND;
         if(detectedTag.id == 1) return AprilTag.LEFT;
         if(detectedTag.id == 2) return AprilTag.MIDDLE;

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util.Robot;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -14,7 +15,7 @@ public class Robot {
     public HardwareMap hardwareMap;
     public FtcDashboard dashboard;
 
-    public MecanumDriveOdometry drivetrain;
+    public MecanumDriveLegacy drivetrain;
     public Lift lift;
     public Arm arm;
     public Gripper gripper;
@@ -31,7 +32,7 @@ public class Robot {
         
         telemetry = new MultipleTelemetry(opMode.telemetry, dashboard.getTelemetry());
 
-        drivetrain = new MecanumDriveOdometry(hardwareMap);
+        drivetrain = new MecanumDriveLegacy("leftFront", "rightFront", "leftRear", "rightRear", this);
 
         lift = new Lift("leftLift", "rightLift", this);
 
